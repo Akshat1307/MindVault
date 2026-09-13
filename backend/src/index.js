@@ -23,6 +23,10 @@ app.use(cookieParser());
 app.use('/user',authRouter);
 app.use('/notes',noteRouter);
 
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: "success", message: "Welcome to MindVault" });
+});
+
 const InitializeConnection=async()=>{
     try{
         await Promise.all([main(),redisClient.connect()]);
