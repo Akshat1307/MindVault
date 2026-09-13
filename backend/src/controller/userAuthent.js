@@ -65,7 +65,7 @@ const verifyOtpAndRegister = async(req,res) => {
             _id: user._id
         }
 
-        const token=jwt.sign({_id:user._id,emailId:emailId},process.env.JWt_KEY,{expiresIn:60*60});
+        const token=jwt.sign({_id:user._id,emailId:emailId},process.env.JWT_KEY,{expiresIn:60*60});
         res.cookie('token',token,{maxAge:60*60*1000});
 
         res.status(201).json({
@@ -101,7 +101,7 @@ const login=async(req,res)=>{
             role:user.role,
         }
 
-        const token=jwt.sign({_id:user._id,emailId:emailId,role:user.role},process.env.JWt_KEY,{expiresIn:60*60});
+        const token=jwt.sign({_id:user._id,emailId:emailId,role:user.role},process.env.JWT_KEY,{expiresIn:60*60});
         res.cookie('token',token,{maxAge:60*60*1000});
 
         res.status(201).json({
@@ -240,7 +240,7 @@ const googleAuth = async (req, res) => {
             role: user.role,
         };
 
-        const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWt_KEY, { expiresIn: 60 * 60 });
+        const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
 
         res.status(200).json({
@@ -283,7 +283,7 @@ const googleRegister = async (req, res) => {
             _id: user._id
         };
 
-        const token = jwt.sign({ _id: user._id, emailId: emailId }, process.env.JWt_KEY, { expiresIn: 60 * 60 });
+        const token = jwt.sign({ _id: user._id, emailId: emailId }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
 
         res.status(201).json({
