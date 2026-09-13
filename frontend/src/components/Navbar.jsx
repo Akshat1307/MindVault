@@ -36,7 +36,8 @@ const Navbar = () => {
       transition={{ type: 'spring', stiffness: 120 }}
       className="sticky top-0 z-40 glass px-6 py-3 flex justify-between items-center"
     >
-      <Link to="/" className="group">
+      <Link to="/" className="group flex items-center gap-2">
+        <img src="/mindvault_logo.jpg" alt="MindVault Logo" className="w-8 h-8 rounded-lg shadow-sm" />
         <span className="text-xl font-bold gradient-text tracking-tight">
           MindVault
         </span>
