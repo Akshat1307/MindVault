@@ -66,7 +66,7 @@ const verifyOtpAndRegister = async(req,res) => {
         }
 
         const token=jwt.sign({_id:user._id,emailId:emailId},process.env.JWT_KEY,{expiresIn:60*60});
-        res.cookie('token',token,{maxAge:60*60*1000});
+        res.cookie('token',token,{maxAge:60*60*1000, sameSite: 'none', secure: true});
 
         res.status(201).json({
             user:reply,
@@ -102,7 +102,7 @@ const login=async(req,res)=>{
         }
 
         const token=jwt.sign({_id:user._id,emailId:emailId,role:user.role},process.env.JWT_KEY,{expiresIn:60*60});
-        res.cookie('token',token,{maxAge:60*60*1000});
+        res.cookie('token',token,{maxAge:60*60*1000, sameSite: 'none', secure: true});
 
         res.status(201).json({
             user:reply,
@@ -122,7 +122,7 @@ const logout=async(req,res)=>{
         const payload=jwt.decode(token);
         await redisClient.set(`KBtoken:${token}`,'Blocked');
         await redisClient.expireAt(`KBtoken:${token}`,payload.exp);
-        res.cookie("token",null,{expires:new Date(Date.now())});
+        res.cookie("token",null,{expires:new Date(Date.now()), sameSite: 'none', secure: true});
         res.send("logged out successfully");
     }
     catch(err){
@@ -241,7 +241,7 @@ const googleAuth = async (req, res) => {
         };
 
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        res.cookie('token', token, { maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
 
         res.status(200).json({
             user: reply,
@@ -284,7 +284,7 @@ const googleRegister = async (req, res) => {
         };
 
         const token = jwt.sign({ _id: user._id, emailId: emailId }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        res.cookie('token', token, { maxAge: 60 * 60 * 1000, sameSite: 'none', secure: true });
 
         res.status(201).json({
             user: reply,
