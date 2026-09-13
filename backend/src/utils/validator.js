@@ -8,8 +8,9 @@ const validate=(data)=>{
         throw new Error("Some fields are missing");
     if(!validator.isEmail(data.emailId))
         throw new Error("Invalid Email");
-    if(!validator.isStrongPassword(data.password))
-        throw new Error("Weak password");
+    if(!validator.isStrongPassword(data.password)){
+        throw new Error("Password must have minimum 8 characters with atleast one capital, one number and one symbol.");
+    }
 
 }
 module.exports=validate;

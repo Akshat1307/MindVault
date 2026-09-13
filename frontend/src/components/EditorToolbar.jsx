@@ -108,11 +108,10 @@ useEffect(() => {
 
     return (
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
 
-            {/* Text */}
-
-            <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
+            {/* Text Formatting */}
+            <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-white/5 rounded-xl px-1.5 py-1 border border-gray-200 dark:border-white/5">
                 <ToolbarButton
                     title="Bold"
                     active={editor.isActive("bold")}
@@ -120,7 +119,7 @@ useEffect(() => {
                         editor.chain().focus().toggleBold().run()
                     }
                 >
-                    <FiBold size={18}/>
+                    <FiBold size={16}/>
                 </ToolbarButton>
 
                 <ToolbarButton
@@ -130,7 +129,7 @@ useEffect(() => {
                         editor.chain().focus().toggleItalic().run()
                     }
                 >
-                    <FiItalic size={18}/>
+                    <FiItalic size={16}/>
                 </ToolbarButton>
 
                 <ToolbarButton
@@ -140,7 +139,7 @@ useEffect(() => {
                         editor.chain().focus().toggleUnderline().run()
                     }
                 >
-                    <FiUnderline size={18}/>
+                    <FiUnderline size={16}/>
                 </ToolbarButton>
 
                 <ToolbarButton
@@ -150,12 +149,13 @@ useEffect(() => {
                         editor.chain().focus().toggleStrike().run()
                     }
                 >
-                    <MdFormatStrikethrough size={18}/>
+                    <MdFormatStrikethrough size={16}/>
                 </ToolbarButton>
 
                   </div>
 
-                  <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
+                  {/* Headings */}
+                  <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-white/5 rounded-xl px-1.5 py-1 border border-gray-200 dark:border-white/5">
 
                     <ToolbarButton
                         title="Heading 1"
@@ -189,7 +189,8 @@ useEffect(() => {
 
                     </div>
 
-                    <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
+                    {/* Lists */}
+                    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-white/5 rounded-xl px-1.5 py-1 border border-gray-200 dark:border-white/5">
 
                     <ToolbarButton
                         title="Bullet List"
@@ -198,7 +199,7 @@ useEffect(() => {
                         editor.chain().focus().toggleBulletList().run()
                         }
                     >
-                        <FiList size={18}/>
+                        <FiList size={16}/>
                     </ToolbarButton>
 
                     <ToolbarButton
@@ -208,7 +209,7 @@ useEffect(() => {
                         editor.chain().focus().toggleOrderedList().run()
                         }
                     >
-                        <MdFormatListNumbered size={18}/>
+                        <MdFormatListNumbered size={16}/>
                     </ToolbarButton>
 
                     <ToolbarButton
@@ -218,12 +219,13 @@ useEffect(() => {
                         editor.chain().focus().toggleTaskList().run()
                         }
                     >
-                        <MdCheckBox size={18}/>
+                        <MdCheckBox size={16}/>
                     </ToolbarButton>
 
                     </div>
 
-                    <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
+                    {/* Code */}
+                    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-white/5 rounded-xl px-1.5 py-1 border border-gray-200 dark:border-white/5">
 
                     <ToolbarButton
                         title="Code Block"
@@ -232,7 +234,7 @@ useEffect(() => {
                         editor.chain().focus().toggleCodeBlock().run()
                         }
                     >
-                        <FiCode size={18}/>
+                        <FiCode size={16}/>
                     </ToolbarButton>
 
                     <ToolbarButton
@@ -247,7 +249,8 @@ useEffect(() => {
 
                     </div>
 
-                    <div className="flex items-center gap-2 bg-gray-800 rounded-lg px-2 py-1">
+                    {/* Color */}
+                    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-white/5 rounded-xl px-1.5 py-1 border border-gray-200 dark:border-white/5">
 
                     <div className="relative">
 
@@ -265,16 +268,21 @@ useEffect(() => {
                                 top-12
                                 left-0
                                 z-50
-                                w-44
+                                w-48
                                 p-3
-                                bg-gray-900
+                                bg-white/95
+                                dark:bg-[#0f0f1a]/95
+                                backdrop-blur-xl
                                 border
-                                border-gray-700
-                                rounded-xl
-                                shadow-2xl
+                                border-gray-200
+                                dark:border-violet-500/20
+                                rounded-2xl
+                                shadow-xl
+                                dark:shadow-2xl
+                                dark:shadow-violet-900/30
                                 grid
                                 grid-cols-4
-                                gap-3
+                                gap-2.5
                             "
                             >
                             {COLORS.map((color) => (
@@ -290,9 +298,11 @@ useEffect(() => {
                                     h-7
                                     rounded-full
                                     border-2
-                                    border-gray-500
-                                    hover:scale-110
-                                    transition
+                                    border-white/10
+                                    hover:scale-125
+                                    hover:border-white/40
+                                    transition-all
+                                    duration-150
                                     flex
                                     items-center
                                     justify-center
@@ -320,6 +330,7 @@ useEffect(() => {
 
                     </div>
 
+                    {/* Undo/Redo */}
                     <ToolbarButton
                     title="Undo"
                     disabled={!editor.can().chain().focus().undo().run()}
@@ -327,7 +338,7 @@ useEffect(() => {
                         editor.chain().focus().undo().run()
                     }
                     >
-                    <FiRotateCcw size={18}/>
+                    <FiRotateCcw size={16}/>
                     </ToolbarButton>
 
                     <ToolbarButton
@@ -337,7 +348,7 @@ useEffect(() => {
                         editor.chain().focus().redo().run()
                     }
                     >
-                    <FiRotateCw size={18}/>
+                    <FiRotateCw size={16}/>
                     </ToolbarButton>
 
 

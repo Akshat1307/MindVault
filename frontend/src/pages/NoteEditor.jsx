@@ -15,23 +15,7 @@ import { common, createLowlight } from "lowlight";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import EditorToolbar from "../components/EditorToolbar";
-import {
-  FiBold,
-  FiItalic,
-  FiUnderline,
-  FiType,
-  FiList,
-  FiCode,
-  FiRotateCcw,
-  FiRotateCw,
-} from "react-icons/fi";
-
-import {
-  MdFormatStrikethrough,
-  MdFormatListNumbered,
-} from "react-icons/md";
-
-import { RiDoubleQuotesL } from "react-icons/ri";
+import { FiUpload } from "react-icons/fi";
 
 const lowlight = createLowlight(common);
 
@@ -54,6 +38,8 @@ const NoteEditor = () => {
   const [fetchLoading, setFetchLoading] = useState(isEditing)
   const [loaded, setLoaded] = useState(false);
   const [currentNoteId, setCurrentNoteId] = useState(id);
+  const fileInputRef = useRef(null);
+  const [importingPdf, setImportingPdf] = useState(false);
 
   const editor = useEditor({
     extensions: [Underline, TaskList,
@@ -200,10 +186,61 @@ const autoSave = async () => {
     }
   }
 
+  const handleImportPdf = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a valid PDF file.");
+      return;
+    }
+
+    setImportingPdf(true);
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+      const res = await API.post('/notes/parse-pdf', formData);
+
+      const { title, content } = res.data;
+      
+      setForm(prev => ({
+        ...prev,
+        title: prev.title || title,
+      }));
+
+      // Improve text formatting by preserving line breaks and paragraph spacing
+      const formattedContent = content
+        .split('\n\n')
+        .map(p => p.trim())
+        .filter(p => p)
+        .map(p => {
+          // Inside a paragraph block, convert single newlines to <br> to preserve exact line structure
+          const lines = p.split('\n').join('<br>');
+          return `<p>${lines}</p>`;
+        })
+        .join('');
+      
+      if (editor) {
+        editor.commands.setContent(formattedContent);
+      }
+      toast.success("PDF imported successfully!");
+    } catch (err) {
+      toast.error("Failed to extract text from PDF.");
+    } finally {
+      setImportingPdf(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   if (fetchLoading) {
     return (
-      <div className="flex justify-center mt-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex flex-col items-center justify-center mt-24 gap-4">
+        <div className="w-10 h-10 rounded-xl border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
+        <p className="text-sm text-gray-600">Loading editor...</p>
       </div>
     )
   }
@@ -216,28 +253,58 @@ const autoSave = async () => {
         className="max-w-[1600px] mx-auto px-6 py-2 "
       >
         <form onSubmit={handleSubmit}>
-          <div className="h-[92vh] flex flex-col bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-3xl shadow-2xl shadow-blue-900/20 overflow-hidden">
+          <div className="h-[92vh] flex flex-col bg-white/80 dark:bg-[#0c0c18]/80 backdrop-blur-xl border border-gray-200 dark:border-white/5 rounded-3xl shadow-lg dark:shadow-2xl dark:shadow-violet-900/10 overflow-hidden">
             {/* Top Action Bar */}
-            <div className="flex justify-between items-center p-5 border-b border-gray-800 bg-gray-900/95">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-white/5 bg-gray-50/80 dark:bg-[#0a0a14]/80 backdrop-blur-lg">
             
-            <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition"
-              >
-                Cancel
-            </button>
+            <div className="flex gap-2">
+              <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all text-sm font-medium"
+                >
+                  Cancel
+              </button>
+              {!isEditing && (
+                <>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    ref={fileInputRef}
+                    onChange={handleImportPdf}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={importingPdf}
+                    className="px-4 py-2 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/20 text-violet-300 transition-all text-sm font-medium flex items-center gap-2"
+                  >
+                    <FiUpload size={14} />
+                    {importingPdf ? "Importing..." : "Import PDF"}
+                  </button>
+                </>
+              )}
+            </div>
 
             <EditorToolbar editor={editor}/>
-              
 
+            <div className="flex items-center gap-3">
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-lg ${
+                saveStatus === 'Saved' ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10' :
+                saveStatus === 'Saving...' ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' :
+                'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10'
+              }`}>
+                {saveStatus}
+              </span>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition font-medium disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all font-medium disabled:opacity-50 text-sm text-white shadow-lg shadow-violet-500/20"
               >
                 {loading ? "Saving..." : isEditing ? "Update" : "Create"}
               </button>
+            </div>
             </div>
 
             {/* Editor */}
@@ -254,10 +321,14 @@ const autoSave = async () => {
                   text-4xl
                   md:text-5xl
                   font-bold
-                  text-white
+                  text-gray-900
+                  dark:text-white
                   outline-none
-                  placeholder-gray-500
+                  placeholder-gray-400
+                  dark:placeholder-gray-700
                   mb-6
+                  caret-violet-600
+                  dark:caret-violet-400
                 "
               />
 
@@ -277,13 +348,21 @@ const autoSave = async () => {
                     }}
                     className="
                       px-4 py-2
-                      bg-gray-800
-                      border border-gray-700
+                      bg-gray-50
+                      dark:bg-white/5
+                      border border-gray-200
+                      dark:border-white/10
                       rounded-full
                       text-sm
                       focus:outline-none
                       focus:ring-2
-                      focus:ring-blue-500
+                      focus:ring-violet-500/50
+                      focus:border-violet-500/30
+                      text-gray-900
+                      dark:text-white
+                      placeholder-gray-400
+                      dark:placeholder-gray-600
+                      transition-all
                     "
                   />
 
@@ -292,10 +371,18 @@ const autoSave = async () => {
                     onClick={addTag}
                     className="
                       px-4 py-2
-                      bg-blue-600
-                      hover:bg-blue-700
+                      bg-violet-50
+                      dark:bg-violet-600/20
+                      hover:bg-violet-100
+                      dark:hover:bg-violet-600/30
+                      border border-violet-200
+                      dark:border-violet-500/20
+                      text-violet-700
+                      dark:text-violet-300
                       rounded-full
                       text-sm
+                      font-medium
+                      transition-all
                     "
                   >
                     Add
@@ -310,11 +397,15 @@ const autoSave = async () => {
                         className="
                           flex items-center gap-2
                           px-3 py-1
-                          bg-gray-800
-                          border border-gray-700
+                          bg-violet-50
+                          dark:bg-violet-500/10
+                          border border-violet-200
+                          dark:border-violet-500/20
                           rounded-full
-                          text-blue-300
+                          text-violet-700
+                          dark:text-violet-300
                           text-sm
+                          font-medium
                         "
                       >
                         <span>#{tag}</span>
@@ -322,7 +413,7 @@ const autoSave = async () => {
                         <button
                           type="button"
                           onClick={() => removeTag(tag)}
-                          className="hover:text-red-400"
+                          className="hover:text-red-600 dark:hover:text-red-400 transition-colors text-violet-600/60 dark:text-violet-400/60"
                         >
                           ×
                         </button>

@@ -1,6 +1,10 @@
 const express=require('express');
 const app=express();
 require('dotenv').config();
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+dns.setDefaultResultOrder('ipv4first');
+
 const main=require('./config/db');
 const cookieParser=require('cookie-parser');
 const authRouter=require('./routes/userAuth');
@@ -9,7 +13,7 @@ const redisClient = require("./config/redis");
 const cors = require('cors')
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true 
 }))
 
@@ -18,9 +22,6 @@ app.use(cookieParser());
 
 app.use('/user',authRouter);
 app.use('/notes',noteRouter);
-
-
-
 
 const InitializeConnection=async()=>{
     try{
@@ -34,6 +35,5 @@ const InitializeConnection=async()=>{
         console.log("Error: "+err);
     }
 }
-
 
 InitializeConnection();

@@ -22,9 +22,13 @@ const userSchema=new Schema({
     },
     password:{
         type:String,
-        required:true
+        required:false
+    },
+    authProvider:{
+        type:String,
+        enum:['local', 'google'],
+        default:'local'
     }
-
 },{timestamps:true});
 
 

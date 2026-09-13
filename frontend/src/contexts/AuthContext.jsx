@@ -38,15 +38,51 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Register function
+  // Register function (Send OTP)
   const register = async (firstName, lastName, emailId, password) => {
     try {
       const res = await API.post('/user/register', { firstName, lastName, emailId, password})
+      toast.success(res.data.message || 'OTP sent successfully!')
+      return { success: true, requiresOtp: true }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send OTP')
+      return { success: false }
+    }
+  }
+
+  // Verify OTP function
+  const verifyOtp = async (emailId, otp) => {
+    try {
+      const res = await API.post('/user/verify-otp', { emailId, otp })
       setUser(res.data.user)
       toast.success('Registration successful!')
       return true
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed')
+      toast.error(err.response?.data?.message || 'Invalid OTP')
+      return false
+    }
+  }
+
+  // Request password reset OTP
+  const requestPasswordReset = async (emailId) => {
+    try {
+      const res = await API.post('/user/forgot-password-otp', { emailId })
+      toast.success(res.data.message || 'Password reset OTP sent!')
+      return true
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send OTP')
+      return false
+    }
+  }
+
+  // Reset password
+  const resetPassword = async (emailId, otp, newPassword) => {
+    try {
+      const res = await API.post('/user/reset-password', { emailId, otp, newPassword })
+      toast.success(res.data.message || 'Password reset successfully!')
+      return true
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Password reset failed')
       return false
     }
   }
@@ -62,8 +98,36 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Google Auth
+  const googleLogin = async (credential) => {
+    try {
+      const res = await API.post('/user/google-auth', { credential })
+      if (res.data.requiresRegistration) {
+        return { requiresRegistration: true, googleData: res.data.googleData }
+      }
+      setUser(res.data.user)
+      toast.success('Logged in successfully with Google!')
+      return { success: true }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Google Login failed')
+      return { success: false }
+    }
+  }
+
+  const googleRegister = async (credential, firstName, lastName) => {
+    try {
+      const res = await API.post('/user/google-register', { credential, firstName, lastName })
+      setUser(res.data.user)
+      toast.success('Registration successful with Google!')
+      return true
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Google Registration failed')
+      return false
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, verifyOtp, logout, googleLogin, googleRegister, requestPasswordReset, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

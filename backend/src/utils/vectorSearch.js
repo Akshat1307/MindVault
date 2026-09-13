@@ -6,7 +6,7 @@ const vectorSearch= async(query,id)=>{
         const results = await Note.aggregate([
         {
             $vectorSearch: {
-            index: "vector_search",
+            index: "vector_index",
             path: "embeddings",
             queryVector: query,
             numCandidates: 100,
