@@ -20,8 +20,6 @@ const Register = () => {
     password: ''
   })
   const [loading, setLoading] = useState(false)
-  const [otpSent, setOtpSent] = useState(false)
-  const [otp, setOtp] = useState('')
 
   useEffect(() => {
     if (location.state?.googleData) {
@@ -40,16 +38,6 @@ const Register = () => {
     e.preventDefault()
     setLoading(true)
     
-    if (otpSent) {
-      const success = await verifyOtp(form.emailId, otp)
-      setLoading(false)
-      if (success) {
-        sessionStorage.removeItem('mindvault_welcomed')
-        navigate('/')
-      }
-      return
-    }
-
     if (isGoogleFlow) {
       const success = await googleRegister(googleCredential, form.firstName, form.lastName)
       setLoading(false)
@@ -65,9 +53,7 @@ const Register = () => {
         form.password
       )
       setLoading(false)
-      if (result?.requiresOtp) {
-        setOtpSent(true)
-      } else if (result?.success) {
+      if (result?.success) {
         sessionStorage.removeItem('mindvault_welcomed')
         navigate('/')
       }
@@ -111,10 +97,10 @@ const Register = () => {
                 <span className="text-white font-bold text-lg">M</span>
               </div>
               <h2 className="text-3xl font-bold gradient-text">
-                {otpSent ? "Verify Email" : isGoogleFlow ? "Confirm Details" : "Create account"}
+                {isGoogleFlow ? "Confirm Details" : "Create account"}
               </h2>
               <p className="text-gray-500 dark:text-gray-600 text-sm mt-2">
-                {otpSent ? `Enter the code sent to ${form.emailId}` : "Join MindVault today"}
+                Join MindVault today
               </p>
             </div>
 
@@ -152,7 +138,7 @@ const Register = () => {
                 </div>
               )}
               
-              {!isGoogleFlow && !otpSent && (
+              {!isGoogleFlow && (
                 <>
                   <div className="relative">
                     <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600" size={16} />
@@ -179,20 +165,7 @@ const Register = () => {
                 </>
               )}
               
-              {otpSent && (
-                <div className="relative">
-                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600" size={16} />
-                  <input
-                    type="text"
-                    placeholder="Enter 6-digit OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/50 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 text-sm transition-all text-center tracking-[0.5em] font-mono"
-                    maxLength={6}
-                  />
-                </div>
-              )}
+
               
               <button
                 type="submit"
@@ -202,12 +175,12 @@ const Register = () => {
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <>{otpSent ? "Verify & Register" : "Create Account"} <FiArrowRight size={16} /></>
+                  <>{"Create Account"} <FiArrowRight size={16} /></>
                 )}
               </button>
             </form>
 
-            {!isGoogleFlow && !otpSent && (
+            {!isGoogleFlow && (
               <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -233,7 +206,7 @@ const Register = () => {
               </div>
             )}
 
-            {!isGoogleFlow && !otpSent && (
+            {!isGoogleFlow && (
               <p className="mt-6 text-center text-gray-500 dark:text-gray-600 text-sm">
                 Already have an account?{' '}
                 <Link to="/login" className="text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 font-medium transition-colors">
@@ -243,10 +216,10 @@ const Register = () => {
             )}
             
             
-            {(isGoogleFlow || otpSent) && (
+            {isGoogleFlow && (
               <p className="mt-6 text-center text-gray-500 dark:text-gray-600 text-sm">
                 Want to use a different method?{' '}
-                <button type="button" onClick={() => { setIsGoogleFlow(false); setOtpSent(false); }} className="text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 font-medium transition-colors">
+                <button type="button" onClick={() => { setIsGoogleFlow(false); }} className="text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 font-medium transition-colors">
                   Go back
                 </button>
               </p>

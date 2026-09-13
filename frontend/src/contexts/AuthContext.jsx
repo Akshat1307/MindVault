@@ -42,10 +42,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (firstName, lastName, emailId, password) => {
     try {
       const res = await API.post('/user/register', { firstName, lastName, emailId, password})
-      toast.success(res.data.message || 'OTP sent successfully!')
-      return { success: true, requiresOtp: true }
+      setUser(res.data.user)
+      toast.success(res.data.message || 'Registration successful!')
+      return { success: true }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send OTP')
+      toast.error(err.response?.data?.message || 'Registration failed')
       return { success: false }
     }
   }

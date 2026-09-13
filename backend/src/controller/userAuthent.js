@@ -18,17 +18,26 @@ const register=async(req,res)=>{
         }
 
         const hashedPassword = await bcrypt.hash(password,10);
-        const otpData = {
-            ...req.body,
-            password: hashedPassword,
-            otp: Math.floor(100000 + Math.random() * 900000).toString()
+        
+        const user = await User.create({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            emailId: req.body.emailId,
+            password: hashedPassword
+        });
+
+        const reply = {
+            firstName: user.firstName,
+            emailId: user.emailId,
+            _id: user._id
         };
 
-        await redisClient.set(`registrationOTP:${emailId}`, JSON.stringify(otpData), { EX: 600 });
-        await sendOtpEmail(emailId, otpData.otp);
+        const token=jwt.sign({_id:user._id,emailId:emailId},process.env.JWT_KEY,{expiresIn:60*60});
+        res.cookie('token',token,{maxAge:60*60*1000, sameSite: 'none', secure: true});
 
-        res.status(200).json({
-            message: "OTP sent to your email. Please verify."
+        res.status(201).json({
+            user:reply,
+            message:"User registered Successfully"
         });
     }
     catch(err){
