@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSend, FiX, FiMessageSquare, FiZap } from 'react-icons/fi'
+import { FiSend, FiX, FiMessageSquare, FiZap, FiFileText } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 
 const NotePanel = ({ isOpen, onClose, messages, onSend, loading, chatSessions, onNewChat, onSelectSession, currentSessionId }) => {
@@ -22,6 +22,13 @@ const NotePanel = ({ isOpen, onClose, messages, onSend, loading, chatSessions, o
     if (!trimmed || loading) return
     onSend(trimmed)
     setInput('')
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
   }
 
   return (
