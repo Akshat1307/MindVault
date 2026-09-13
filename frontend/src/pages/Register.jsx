@@ -111,8 +111,7 @@ const Register = () => {
                 </div>
               )}
               
-              {!otpSent && (
-                <div className="flex gap-3">
+              <div className="flex gap-3">
                   <div className="relative">
                     <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600" size={16} />
                     <input
@@ -136,7 +135,6 @@ const Register = () => {
                     />
                   </div>
                 </div>
-              )}
               
               {!isGoogleFlow && (
                 <>
