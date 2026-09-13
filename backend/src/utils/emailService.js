@@ -1,9 +1,11 @@
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Only initialize if the key exists, otherwise it will crash on startup
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const sendOtpEmail = async (toEmail, otp) => {
     try {
+        if (!resend) throw new Error("Email service is not configured.");
         const data = await resend.emails.send({
             from: 'MindVault <onboarding@resend.dev>', // You must verify a domain in Resend to change this
             to: toEmail,
@@ -30,6 +32,7 @@ const sendOtpEmail = async (toEmail, otp) => {
 
 const sendPasswordResetEmail = async (toEmail, otp) => {
     try {
+        if (!resend) throw new Error("Email service is not configured.");
         const data = await resend.emails.send({
             from: 'MindVault <onboarding@resend.dev>',
             to: toEmail,
